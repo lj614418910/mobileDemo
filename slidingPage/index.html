@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style lang="css">
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        html,body{
+            height: 100%;
+        }
+        #wrap{
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        #wrap2{
+            transition:0.4s linear;
+            width: 100%;
+            height: 1000%;
+        }
+        .page{
+            width: 100%;
+            height: 10%;
+        }
+    </style>
+</head>
+<body>
+    <div id="wrap">
+        <div id="wrap2">
+            <div class="page" style="background: rgb(223, 24, 24)"></div>
+            <div class="page" style="background: rgb(50, 184, 105)"></div>
+            <div class="page" style="background: rgb(38, 80, 170)"></div>
+            <div class="page" style="background: rgb(174, 212, 35)"></div>
+            <div class="page" style="background: rgb(169, 41, 180)"></div>
+            <div class="page" style="background: rgb(124, 165, 141)"></div>
+            <div class="page" style="background: rgb(126, 74, 74)"></div>
+            <div class="page" style="background: rgb(121, 206, 121)"></div>
+            <div class="page" style="background: rgb(121, 96, 233)"></div>
+            <div class="page" style="background: rgb(115, 195, 206)"></div>
+        </div>
+    </div>
+    <script>
+        document.body.addEventListener('touchmove', function (event) {
+            //阻止默认滑动事件
+            event = event ? event : window.event;
+            event.preventDefault ? event.preventDefault() : event.returnValue = false;
+        }, false)
+        var pages = function (obj) {
+            var box = document.getElementById(obj.wrap),
+            box2 = document.getElementById(obj.wrap2),
+            len = obj.len,
+            n = obj.n,
+            startY, moveY, cliH,
+            getH = function () {
+                cliH = document.body.clientHeight;
+            };
+
+            getH();//初始化获取屏幕高度
+            window.addEventListener('resize', getH, false);//每次调整窗口大小的时候获取屏幕高度
+
+            var hasTouch = function(fn) {
+                return function(event) {
+                    if (!event.touches.length) { 
+                        return;
+                    } 
+                    return fn(event);
+                }
+            };
+
+            var touchstart = hasTouch(function(event) {
+                startY = event.touches[0].pageY;
+                moveY = 0;
+            });
+            var touchmove = hasTouch(function (event) {
+                moveY = event.touches[0].pageY - startY;
+                box2.style.transform = 'translateY(' + (-n * cliH + moveY) + 'px)';//根据手指的位置移动页面
+            });
+            var touchend = function (event) {
+                //位移小于+-100的不翻页
+                if (moveY < -100) n++;
+                if (moveY > 100) n--;
+                //最后页&最前页控制
+                if (n < 0) n = 0;
+                if (n > len-1) n = len - 1;
+                //重定位
+                box2.style.transform = 'translateY(' + (-n * 10) + '%)';//根据百分比位置移动页面
+            };
+
+            //touch事件绑定
+            box.addEventListener('touchstart', touchstart, false);
+            box.addEventListener('touchmove', touchmove, false);
+            box.addEventListener('touchend', touchend, false);
+        };
+
+        pages({
+            wrap: 'wrap',//wrap的id
+            wrap2: 'wrap2',//wrap2的id
+            len: 10,//一共几页
+            n: 0//页面一打开默认第几页
+        });
+    </script>
+</body>
+</html>
